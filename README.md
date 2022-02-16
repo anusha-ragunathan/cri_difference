@@ -120,6 +120,6 @@ $ k exec -it vol-test -- sh
 total 0
      0 drwxr-xr-x    1 druid    druid           17 Feb  8 22:58 .
      0 drwxr-xr-x    1 druid    druid           50 Feb  8 22:22 ..
-     0 drwxr-xr-x    2 root     root             6 Feb 16 02:31 var  <=== unexpected
+     0 drwxr-xr-x    2 root     root             6 Feb 16 02:31 var  <=== unexpected group:owner change (unexpected root:root vs expected druid:druid ) & umask change (unexpected 755 vs expected 775)
 ```
 
