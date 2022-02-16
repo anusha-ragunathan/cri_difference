@@ -114,12 +114,14 @@ $ k apply -f voltest.yaml
 pod/vol-test created
 ```
 
+ Notice how `/opt/apache/var` has unexpected group:owner change (unexpected root:root vs expected druid:druid ) & umask change (unexpected 755 vs expected 775)
+
 ```
 $ k exec -it vol-test -- sh
 /opt/apache-druid-2022-02-08 # ls -als
 total 0
      0 drwxr-xr-x    1 druid    druid           17 Feb  8 22:58 .
      0 drwxr-xr-x    1 druid    druid           50 Feb  8 22:22 ..
-     0 drwxr-xr-x    2 root     root             6 Feb 16 02:31 var  <=== unexpected group:owner change (unexpected root:root vs expected druid:druid ) & umask change (unexpected 755 vs expected 775)
+     0 drwxr-xr-x    2 root     root             6 Feb 16 02:31 var  <=== unexpected
 ```
 
