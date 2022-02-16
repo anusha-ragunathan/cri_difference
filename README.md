@@ -39,13 +39,13 @@ Use 'docker scan' to run Snyk tests against images to find vulnerabilities and l
 ```
 $ docker push rubegolberg22/critest:latest
 The push refers to repository [docker.io/rubegolberg22/critest]
-5f70bf18a086: Pushed 
-12bfa0134feb: Pushed 
-ef2c6e6005f7: Pushed 
-12f402faa6a2: Pushed 
-f58f747c1987: Pushed 
-d31505fd5050: Pushed 
-latest: digest: sha256:00420c7b8c21bf2e81637c164432f38414f27af7028b670f19b23f595df1855f size: 1561
+5f70bf18a086: Layer already exists 
+9df3a66e9850: Pushed 
+104c469497a1: Pushed 
+66d2106cac27: Pushed 
+73763c96f44c: Pushed 
+d31505fd5050: Layer already exists 
+latest: digest: sha256:1be9d276efafe353d0944e3995c467c158ffc32abab9e428b7c287c5d2282211 size: 1561
 ```
 
 ### Run the image as a container on both runtimes, independent of Kubernetes
