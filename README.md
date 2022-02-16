@@ -66,16 +66,16 @@ Using `ctr` as client, run the image directly on containerd.
 ```
 # ctr images pull docker.io/rubegolberg22/critest:latest
 docker.io/rubegolberg22/critest:latest:                                           resolved       |++++++++++++++++++++++++++++++++++++++| 
-manifest-sha256:00420c7b8c21bf2e81637c164432f38414f27af7028b670f19b23f595df1855f: done           |++++++++++++++++++++++++++++++++++++++| 
-layer-sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1:    done           |++++++++++++++++++++++++++++++++++++++| 
-config-sha256:a94f6ebb43ea56b7427d43c1bcd93f7ad24a5c8cafbb8f52fa74b01a001e2da7:   done           |++++++++++++++++++++++++++++++++++++++| 
+manifest-sha256:1be9d276efafe353d0944e3995c467c158ffc32abab9e428b7c287c5d2282211: done           |++++++++++++++++++++++++++++++++++++++| 
+layer-sha256:83e07366e34625919a8da32831413e0374c051012463a23e5ddfca1c5c4ca449:    done           |++++++++++++++++++++++++++++++++++++++| 
+layer-sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1:    exists         |++++++++++++++++++++++++++++++++++++++| 
+layer-sha256:3ab76c0e26fac1156858df9d105c5cd9958cfcda7092a13010f0fcca18b6d177:    done           |++++++++++++++++++++++++++++++++++++++| 
+config-sha256:48e65d025d378104e356cc92dfc508457b88321bd001ce670854b82fb7385581:   done           |++++++++++++++++++++++++++++++++++++++| 
+layer-sha256:a44974475eff63b5d114f2213abd4e9082f6ea1b739f1a31906dd3c4896be7a8:    done           |++++++++++++++++++++++++++++++++++++++| 
 layer-sha256:009932687766e1520a47aa9de3bfe97ffdb1b6cad0b08d5078bad60329f13f19:    exists         |++++++++++++++++++++++++++++++++++++++| 
-layer-sha256:1d659f57b71f15c33edde8f4553391623de0d29349d8aa0bd62edf7b06bb88e7:    done           |++++++++++++++++++++++++++++++++++++++| 
-layer-sha256:ed26635cf537bf798606b256b23e97b195166b39a42e00abc9308fc959700f4a:    done           |++++++++++++++++++++++++++++++++++++++| 
-layer-sha256:84baca17c1842f8a45a23e3c134e583681aa256eefa73feefa619958105438be:    done           |++++++++++++++++++++++++++++++++++++++| 
-layer-sha256:7b1d92b04b93005d7bc33b479a7a8393370a4d263dc42c5592cb886ba52566e3:    done           |++++++++++++++++++++++++++++++++++++++| 
-elapsed: 2.3 s                                                                    total:  4.1 Ki (1.8 KiB/s)                                       
-unpacking linux/amd64 sha256:00420c7b8c21bf2e81637c164432f38414f27af7028b670f19b23f595df1855f...
+layer-sha256:8b154b5516e65d11e493e5f4e4c13a9e18ab536ccdc9cdcd6edb992671cc7103:    done           |++++++++++++++++++++++++++++++++++++++| 
+elapsed: 2.3 s                                                                    total:  2.8 Ki (1.2 KiB/s)                                       
+unpacking linux/amd64 sha256:1be9d276efafe353d0944e3995c467c158ffc32abab9e428b7c287c5d2282211...
 done
 ```
 
