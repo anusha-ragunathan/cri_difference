@@ -1,18 +1,41 @@
 # cri_difference
 
-This test reveals unexpected changes to directory permissions at container runtime. A Dockerfile specifies a directory, which is symlinked, ownership changed and mounted as a VOLUME during image build time. 
-- This image, when run as a container on `dockerd` as runtime (both directly or as a Kubernetes CRI), retains the directory group and ownership as expected. 
-- This image, when run as a container directly on `containerd` as runtime, retains the directory group and ownership as expected. 
-- However, when the image is run as a container on `containerd` as runtime which is part of a Kubernetes cluster, the group and ownership permissions are unexpected.
-
+This test reveals unexpected modifications to a directory's permissions made during the container's runtime. Refer to this [Dockerfile](https://github.com/anusha-ragunathan/cri_difference/blob/main/Dockerfile) that specifies a directory, which is symlinked, has it's ownership changed and mounted as a VOLUME during image build time. 
+- This image, when run as a container on `dockerd` as runtime (both independent of Kubernetes and as a Kubernetes CRI runtime), retains the directory group and ownership as expected. 
+- This image, when run as a container directly on `containerd` as runtime (independent of Kubernetes), retains the directory group and ownership as expected. 
+- However, when the image is run as a container in a Kubernetes cluster where `containerd` is the CRI runtime, the group and ownership permissions are unexpected.
 
 Testing was done using:
 - Kubernetes 1.20
 - containerd 1.4.6
 - docker 20.10.8
 
-1. Build the Dockerfile and push image to docker hub.
 
+### Build and push
+- Build/tag the image.
+```
+$ docker build . -t rubegolberg22/critest:latest
+[+] Building 1.7s (10/10) FINISHED                                                                                                                                                                                      
+ => [internal] load build definition from Dockerfile                                                                                                                                                               0.0s
+ => => transferring dockerfile: 37B                                                                                                                                                                                0.0s
+ => [internal] load .dockerignore                                                                                                                                                                                  0.0s
+ => => transferring context: 2B                                                                                                                                                                                    0.0s
+ => [internal] load metadata for docker.io/library/busybox:latest                                                                                                                                                  0.0s
+ => CACHED [1/6] FROM docker.io/library/busybox:latest                                                                                                                                                             0.0s
+ => [2/6] RUN VERSION="2022-02-08"  && mkdir -p /opt/apache-druid-${VERSION}  && ln -s /opt/apache-druid-${VERSION} /opt/druid                                                                                     0.3s
+ => [3/6] RUN addgroup -S -g 1000 druid  && adduser -S -u 1000 -D -H -h /opt/druid -s /bin/sh -g '' -G druid druid                                                                                                 0.4s
+ => [4/6] RUN mkdir -p /opt/druid/var                                                                                                                                                                              0.4s
+ => [5/6] RUN chown -R druid:druid /opt  && chmod 775 /opt/druid/var                                                                                                                                               0.4s
+ => [6/6] WORKDIR /opt/druid                                                                                                                                                                                       0.0s
+ => exporting to image                                                                                                                                                                                             0.0s
+ => => exporting layers                                                                                                                                                                                            0.0s
+ => => writing image sha256:48e65d025d378104e356cc92dfc508457b88321bd001ce670854b82fb7385581                                                                                                                       0.0s
+ => => naming to docker.io/rubegolberg22/critest:latest                                                                                                                                                            0.0s
+
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+```
+
+- Push image to docker hub
 ```
 $ docker push rubegolberg22/critest:latest
 The push refers to repository [docker.io/rubegolberg22/critest]
@@ -25,8 +48,9 @@ d31505fd5050: Pushed
 latest: digest: sha256:00420c7b8c21bf2e81637c164432f38414f27af7028b670f19b23f595df1855f size: 1561
 ```
 
-2. Run the image as a container on dockerd. Verify that the group:owner permissions are set as expected.
- 
+### Run the image as a container on both runtimes, independent of Kubernetes
+
+- Run a container on `dockerd` using the image. Verify that the directory group:owner permissions are set to `druid` as expected. 
 ```
 $ docker run -it rubegolberg22/critest:latest
 /opt/apache-druid-2022-02-08 # ls -als
@@ -36,8 +60,9 @@ total 20
      4 drwxrwxr-x    2 druid    druid         4096 Feb  8 22:58 var
 ```
 
-3. Using `ctr` as client, run the image directly on containerd. Notice that the group:owner permissions are 'druid'.
+- Run a container on `containerd` using the image. Verify that the directory group/ownership is set as expected. 
 
+Using `ctr` as client, run the image directly on containerd.
 ```
 # ctr images pull docker.io/rubegolberg22/critest:latest
 docker.io/rubegolberg22/critest:latest:                                           resolved       |++++++++++++++++++++++++++++++++++++++| 
@@ -63,24 +88,13 @@ total 0
      0 drwxrwxr-x    1 druid    druid            6 Feb  8 22:58 var
 ```
 
-4. Now, run the same image as a Pod on a Kubernetes cluster using containerd as CRI.
+### Run the image as a container on a Kubernetes cluster, with both runtimes as the CRI 
 
-cat voltest.yaml
+- Run the same image as a [Pod](https://github.com/anusha-ragunathan/cri_difference/blob/main/voltest.yaml) on a Kubernetes cluster using `dockerd` as CRI.
+
 ```
-apiVersion: v1
-kind: Pod
-metadata:
- name: vol-test
- labels:
-   app: vol-test
-spec:
- containers:
- - image: docker.io/rubegolberg22/critest:latest
-   command: ["/bin/sh", "-ec", "while :; do echo '.'; sleep 5 ; done"]
-   name: vol-test
-   imagePullPolicy: Always
- restartPolicy: Never
- terminationGracePeriodSeconds: 3
+$ k apply -f voltest.yaml 
+pod/vol-test created
 ```
 
 ```
@@ -89,6 +103,23 @@ $ k exec -it vol-test -- sh
 total 0
      0 drwxr-xr-x    1 druid    druid           17 Feb  8 22:58 .
      0 drwxr-xr-x    1 druid    druid           50 Feb  8 22:22 ..
-     0 drwxr-xr-x    2 root     root             6 Feb 16 02:31 var
+     0 drwxrwxr-x    2 druid    druid            6 Feb  8 22:58 var
+```
+
+
+- Run the same image as a [Pod](https://github.com/anusha-ragunathan/cri_difference/blob/main/voltest.yaml) on a Kubernetes cluster using `containerd` as CRI.
+
+```
+$ k apply -f voltest.yaml 
+pod/vol-test created
+```
+
+```
+$ k exec -it vol-test -- sh
+/opt/apache-druid-2022-02-08 # ls -als
+total 0
+     0 drwxr-xr-x    1 druid    druid           17 Feb  8 22:58 .
+     0 drwxr-xr-x    1 druid    druid           50 Feb  8 22:22 ..
+     0 drwxr-xr-x    2 root     root             6 Feb 16 02:31 var  <=== unexpected
 ```
 
